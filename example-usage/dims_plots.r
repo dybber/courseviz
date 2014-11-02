@@ -1,4 +1,4 @@
-source("../absalon-plotlib.r")
+source("../courseviz.r")
 
 ####### Read data ########
 data <- setup(default_dir="data-dims")

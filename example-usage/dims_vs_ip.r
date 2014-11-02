@@ -1,4 +1,4 @@
-source("../absalon-plotlib.r")
+source("../courseviz.r")
 
 ####### Read data ########
 dataIP <- setup(default_dir="data-ip")
