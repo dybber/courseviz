@@ -5,6 +5,7 @@ data <- setup(default_dir="data-ip")
 participants <- data$participants
 handins <- data$handins
 assignments <- data$assignments
+visits <- data$visits
 
 # Udvælg øvelseshold
 # handins <- selectClass(handins, 1)
@@ -40,8 +41,8 @@ plotClassExamQual <- statusPerClass(examqual) + ylab("# of students")
 
 
 # Only show dropout's for class 1 through 6 (new DIKU students)
-participants <- subset(participants, class >= 1 & class <= 6)
-dropOutPlot <- dropOut(participants)
+#participants <- subset(participants, class >= 1 & class <= 6)
+dropOutPlot <- dropOut(visits)
 
 ####### Save PDF ########
 pdf(paste(data$directory,"/ip_allplots.pdf", sep=""), width=15, height=12)

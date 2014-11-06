@@ -5,6 +5,7 @@ data <- setup(default_dir="data-dims")
 participants <- data$participants
 handins <- data$handins
 assignments <- data$assignments
+visits <- data$visits
 
 # Udvælg øvelseshold
 #handins <- selectClass(handins, 2)
@@ -29,7 +30,7 @@ plotAverages <- averagePointsHistogram(handins,binwidth=5) + scale_x_continuous(
 plotStatus <- statusCounts(handins)
 plotClassStatus <- statusPerClass(handins)
 
-dropOutPlot <- dropOut(participants)
+dropOutPlot <- dropOut(visits)
 
 
 ####### Save PDF ########

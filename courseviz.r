@@ -20,11 +20,13 @@ setup <- function(default_dir = "data") {
     participantsFilename = paste(directory, "/participants.csv", sep="")
     assignmentsFilename = paste(directory, "/assignments.csv", sep="")
     handinFilename = paste(directory, "/handins.csv", sep="")
+    visitsFilename = paste(directory, "/visits.csv", sep="")
     
     # Read CSV's
     participants <- read.csv(participantsFilename, stringsAsFactors=FALSE)
     assignments <- read.csv(assignmentsFilename, stringsAsFactors=FALSE)
     handins <- read.csv(handinFilename, stringsAsFactors=FALSE)
+    visits <- read.csv(visitsFilename, stringsAsFactors=FALSE)
   
     handins[is.na(handins$score),]$score <- 0
 
@@ -57,6 +59,7 @@ setup <- function(default_dir = "data") {
     ret <- list("participants" = participants,
                 "assignments"  = assignments,
                 "handins"      = h,
+                "visits"       = visits,
                 "directory"    = directory)
     
     return (ret)
@@ -153,6 +156,18 @@ pointsPerAssignment <- function(handins) {
     return(p)
 }
 
+assessmentPerAssignment <- function(handins) {
+    data <- removeNotSubmitted(handins)
+
+    p <- ggplot(data, aes(assignment,fill=as.factor(assessment)))
+    p <- p + geom_bar()
+    p <- p + coord_flip()
+    p <- p + scale_fill_discrete(name = "Assessment")
+    p <- p + xlab("")
+    p <- p + ylab("# of hand-ins")
+    return(p)
+}
+
 # Total / average score
 assignmentPointHistogram <- function(handins) {
     p <- ggplot(handins, aes(as.factor(score)))
@@ -170,6 +185,17 @@ totalPointsHistogram <- function(handins,binwidth=1) {
     p <- p + geom_histogram(binwidth=binwidth)
     p <- p + scale_fill_discrete(name = "Exercise class")
     p <- p + xlab("Points")
+    p <- p + ylab("# of students")
+    return (p)
+}
+
+# Total / average score
+totalPassedHistogram <- function(handins,binwidth=1) {
+    summarized <- ddply(handins, .(username,class), summarize, totalscore = sum(assessment=="Passed"))
+
+    p <- ggplot(summarized, aes(factor(totalscore)))
+    p <- p + geom_histogram(binwidth=binwidth)
+    p <- p + xlab("Number of passed assignments")
     p <- p + ylab("# of students")
     return (p)
 }
@@ -226,15 +252,15 @@ statusPerClass <- function(handins) {
     return (p)
 }
 
-dropOut <- function(participants) {
+dropOut <- function(visits) {
     binwidth_days=7
     
     # Place those who didn't visit at an arbitrary date
-    participants[participants$lastVisit == "Never visited",]$lastVisit <- "1/08/2014 00:00"
+    visits[visits$lastVisit == "Never visited",]$lastVisit <- "1/08/2014 00:00"
 
     # Remove recent visitors (to focus on the problems)
     today <- Sys.Date()
-    y <- as.POSIXct(strptime(participants$lastVisit, "%d/%m/%Y %H:%M"))
+    y <- as.POSIXct(strptime(visits$lastVisit, "%d/%m/%Y %H:%M"))
     withoutRecent <- y[difftime(today,y,units="days") > 7]
 
     p <- qplot(withoutRecent,binwidth=binwidth_days*24*60*60)
